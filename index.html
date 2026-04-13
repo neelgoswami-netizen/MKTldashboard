@@ -2285,7 +2285,7 @@ function renderPartnerChecklist(p){
 
   var stepsHtml = '<ul class="checklist">';
   steps.forEach(function(s){
-    stepsHtml += '<li class="cl-item '+(s.done?'done':'')+'" onclick="toggleCheckItem(this,''+s.key+'','+p.id+')">'
+    stepsHtml += '<li class="cl-item '+(s.done?'done':'')+'" onclick="toggleCheckItem(this,&quot;'+s.key+'&quot;,'+p.id+')">'
       +'<span class="cl-check"></span>'
       +'<span class="cl-label">'+s.label+'</span>'
       +(s.note?'<span class="cl-note">'+s.note+'</span>':'')
