@@ -3680,7 +3680,7 @@ async function syncAllSheets(){
     if(useScript){
       syncLog('Using Apps Script proxy (org account)...');
       const url = cfg.scriptUrl + (cfg.scriptUrl.includes('?')?'&':'?') + 'tab=all';
-      const resp = await fetch(url);
+      const resp = await fetch(url, {redirect:'follow', credentials:'omit'});
       if(!resp.ok){
       if(resp.status===401||resp.status===403)
         throw new Error('Auth error ('+resp.status+'): Open the app from GitHub Pages (not a local file) and make sure you are logged into your Cars24 Google account in this browser.');
@@ -3893,6 +3893,8 @@ async function sheetWriteBack(tab, keyField, keyValue, row){
   try {
     const resp = await fetch(cfg.scriptUrl, {
       method: 'POST',
+      redirect: 'follow',
+      credentials: 'omit',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({action:'upsert', tab, keyField, keyValue, row})
     });
@@ -4350,8 +4352,9 @@ function previewProvBulk(text){
     const sc=r._status==='error'?'row-error':r._status==='update'?'row-warn':'row-valid';
     const badge=r._status==='error'?'<span class="err-badge">Error</span>':r._status==='update'?'<span class="conflict-badge">Update</span>':'<span class="new-badge">New</span>';
     const gap=r.invAmount&&r.amount?r.invAmount-r.amount:null;
-    const gapCell=gap!==null?'<span class="gap-pill ' + gap>0?'gap-over':gap<0?'gap-under':'gap-match' + '">' + gap>=0?'+':'' + Math.round(gap).toLocaleString('en-IN') + '</span>':'—';
-    return '<tr class="' + sc + '"><td>' + r._row + '</td><td>' + badge + '</td>${PCOLS.map(c=>'<td>${r[c]||'—'}</td>`).join('')}<td>${gapCell}</td></tr>`;
+    const gapClass = gap>0?'gap-over':gap<0?'gap-under':'gap-match';
+    const gapCell = gap!==null ? '<span class="gap-pill '+gapClass+'">'+(gap>=0?'+':'')+Math.round(gap).toLocaleString('en-IN')+'</span>' : '—';
+    return '<tr class="'+sc+'"><td>'+r._row+'</td><td>'+badge+'</td>'+PCOLS.map(c=>'<td>'+(r[c]||'—')+'</td>').join('')+'<td>'+gapCell+'</td></tr>';
   }).join('');
 
   document.getElementById('prov-bulk-preview').style.display='block';
@@ -4398,6 +4401,8 @@ async function writeBack(tab, keyField, keyValue, row, action='upsert'){
     const payload = {tab, action, keyField, keyValue, row};
     const resp = await fetch(cfg.scriptUrl, {
       method: 'POST',
+      redirect: 'follow',
+      credentials: 'omit',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload),
     });
